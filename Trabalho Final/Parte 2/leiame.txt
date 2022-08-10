@@ -1,0 +1,1 @@
+rodar o arquivo petri_net.m

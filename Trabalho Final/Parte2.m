@@ -1,0 +1,154 @@
+%%% Rodrigo Naves Rios - 16/0144094
+%%% Rede de Petri - Sistema 1
+
+clear
+close all
+clc
+
+%-------------------------------------------------------%
+%Modelo da Rede
+Tbi = [1 0 0 0 0 0 0];
+T0 = [0 1 0 0 0 0 0];
+T1 = [0 0 1 0 0 0 0];
+Tbf = [0 0 0 1 0 0 0];
+Tbe1 = [0 0 0 0 1 0 0];
+Tbe2 = [0 0 0 0 0 1 0];
+Tre = [0 0 0 0 0 0 1];
+
+global A
+A = [-1 1 0 1 0 0 0;
+    0 0 1 -1 1 0 0;
+    0 0 -1 1 -1 0 0;
+    1 -1 0 -1 0 0 0;
+    0 -1 -1 0 -1 1 -1;
+    0 -1 0 -1 0 1 -1;
+    0 1 0 0 0 -1 1];
+
+%Estado Inicial
+%     I Sf S1 S2 M Se Be 
+x0 = [1 0 0 0 0 0 1];
+
+%Rotulos das Transições
+global Rot
+Rot = ["Tbi", "T0", "T1", "Tbf", "Te",...
+    "Te", "Tre"];
+
+%Vetor de Transições
+global T 
+T = [Tbi; T0; T1; Tbf; Tbe1; Tbe2; Tre];
+
+%---------------------------------------------------------%
+%%% Requisito 1: Mostra as Sequências Possíveis
+
+global tr 
+tr = [];
+% Não há disparos anteriores ao estado inicial
+disparos_anteriores = "";
+% 
+N = 6;
+sequencias_ate_N(x0,N,disparos_anteriores);
+disp("-------------------------------------------")
+disp(['Sequências até ', num2str(N) ,' disparos:'])
+mostra_transicoes(tr);
+
+%---------------------------------------------------------%
+% Requisito 2: Retorna estado alcançado
+
+disp("-------------------------------------------")
+disp("Exemplos de sequências de disparos de transições:")
+fprintf("\n");
+TA = [Tbi; T0; T1; T0];
+x1 = retorna_estado(x0,TA);
+disp(['u = {Tbi, T0, T1, T0} => ', 'x = [',num2str(x1),']'])
+
+TB = [T0];
+x2 = retorna_estado(x0,TB);
+disp(['u =  {T0} => ', 'x = [',num2str(x2),']'])
+
+TC =[Tbi; T0; T1; Tbe2];
+x3 = retorna_estado(x0,TC);
+disp(['u = {Tbi, T0, T1, Tbe2} => ', 'x = [',num2str(x3),']'])
+
+TD = [Tbi; Tbe2; ];
+x4 = retorna_estado(x0, TD);
+disp(['u = {Tbi, Tbe2} => ', 'x = [',num2str(x4),']'])
+
+TE = [Tbi; T0; T1; T0; Tbe1; Tre; Tbf];
+x5 = retorna_estado(x0, TE);
+disp(['u = {Tbi, T0, T1, T0, Tbe1, Tre, Tbf} => ',...
+    'x = [',num2str(x5),']'])
+%---------------------------------------------------------%
+% Implementação de Funções
+
+% Função para mostrar todas as transições possíveis até N
+% disparos.
+function mostra_transicoes(transitions)
+    N = size(transitions,2);
+    for k=1:N
+        disp(transitions(1,k));
+    end
+end
+
+% Função recursiva para gerar todas as transiçõe até N disparos
+function sequencias_ate_N(x,N,past)
+    % x: Estado de Partida
+    % N: Número de Disparos
+    % past: Transições anteriores ao estado x
+    % Observação: Se x = x0, então past = {}, uma vez
+    % que não há transições anteriores ao estado inicial.
+    
+    
+    global A T tr Rot 
+
+    for i=1:size(T,1)
+        if N == 0
+            return;
+        end
+        
+        if check_transition(x,T(i,:))
+            % Estado alcançado
+            st = x+T(i,:)*A;
+            
+            % Vetor com disparos
+            tr = [tr,past+Rot(i)];
+            sequencias_ate_N(st,N-1,past+Rot(i));
+        end
+    end
+end
+
+%Retorna o Estado Alcançado por uma Sequência de Disparos
+function x = retorna_estado(x,T)
+   global A
+    
+    for i=1:size(T,1)
+        if check_transition(x,T(i,:)) 
+            x = x+T(i,:)*A;
+        else
+            x = "Transiçao Inválida";
+            return;
+        end
+    end
+%    disp("Estado Alcançado:")
+%    disp(x)
+end
+
+
+%Verifica se transição está habilitada;
+function X = check_transition(x,t)
+    global A
+    
+    x_destino = x + t*A;
+    X = all(x_destino(:) >= 0);
+    
+    %Caso especial dos arcos (Sf,t0) e (t0,Sf)
+    %A matriz de adjacências têm elemento 0 nessa posição,
+    %mas isso se deve ao fato de que há um arco saindo de t0 
+    %e outro entrando. Essa implementação permite prescindir
+    %da análise da matriz de adjacência de entrada.
+    if all(t == [0 1 0 0 0 0 0])
+        if x(2) < 1
+            X = 0;
+        end
+    end
+end
+

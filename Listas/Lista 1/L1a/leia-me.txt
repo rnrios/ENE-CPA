@@ -1,0 +1,6 @@
+Para cada "arquivo.cpp" executar o comando no terminal
+
+1. $ g++ -g  arquivo.cpp -o executavel.o
+2. $ ./executavel.o
+
+Observação: utilizou-se a seguinte versão 7.5.0 do g++

@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../inc/dev_helper.h
+stdio.h
+-
+
+../inc/state_machine.h
+stdint.h
+-
+
+C:/Users/Rodrigo/Dropbox/Unb/ENE/CPA/Trabalho Final/state_machine/src/state_machine.c
+dev_helper.h
+-
+state_machine.h
+-
+
+C:/Users/Rodrigo/Dropbox/Unb/ENE/CPA/Trabalho Final/state_machine/src/test_1.c
+stdio.h
+-
+state_machine.h
+C:/Users/Rodrigo/Dropbox/Unb/ENE/CPA/Trabalho Final/state_machine/src/state_machine.h
+
